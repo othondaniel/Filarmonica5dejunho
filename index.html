@@ -68,13 +68,36 @@
   <script>
     let acervoCompleto = [];
 
-    // Função para chamar o Apps Script e buscar os dados
+    // Substitua a função loadMusicas() existente (originalmente no source: 8)
     function loadMusicas() {
-      // Chama a função getAcervoMusical() no Code.gs
-      google.script.run
-        .withSuccessHandler(displayMusicas)
-        .withFailureHandler(handleError)
-        .getAcervoMusical();
+      // Usamos fetch() para carregar o arquivo JSON diretamente do GitHub Pages
+      fetch('musicas.json') 
+        .then(response => {
+          // Verifica se a resposta HTTP foi OK (status 200)
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json(); // Converte a resposta para objeto JavaScript
+        })
+        .then(musicas => {
+          // A função displayMusicas permanece a mesma
+          displayMusicas(musicas);
+        })
+        .catch(error => {
+          // Chama o handler de erro, adaptado para esta falha de rede/arquivo
+          handleError(new Error("Falha ao carregar o arquivo musicas.json. Verifique o caminho e o conteúdo do arquivo. Detalhe: " + error.message));
+        });
+    }
+    // OBS: Você pode remover a função handleError se quiser usar apenas a função de erro do fetch,
+    // mas vou mantê-la para aproveitar sua estrutura de mensagem de erro.
+    
+    // IMPORTANTE:
+    // Você precisa alterar a função handleError para ser mais genérica, pois ela ainda cita o Apps Script:
+    function handleError(error) {
+      document.getElementById('loading').innerHTML = 
+        '<i class="fa-solid fa-exclamation-triangle text-4xl text-red-600 mb-3"></i>' +
+        '<p class="text-lg font-medium text-red-700">Erro ao carregar os dados. Verifique a URL e o arquivo musicas.json.</p>' +
+        '<p class="text-sm text-red-500">Detalhe: ' + error.message + '</p>';
     }
 
     // Função executada quando os dados chegam com sucesso
@@ -174,3 +197,4 @@
   </script>
 </body>
 </html>
+
