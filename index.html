@@ -147,15 +147,6 @@
             <i class="fa-solid fa-user-pen text-gray-400 mr-2"></i>Compositor: ${musica.Compositor || 'Desconhecido'}
           </p>
           
-          ${audioLink ? `
-            <p class="text-gray-600 font-medium mb-2">Prévia de Áudio:</p>
-            <audio controls preload="metadata" src="${audioLink}" class="mb-4"></audio>
-          ` : `
-            <div class="text-sm text-gray-400 p-2 bg-gray-50 rounded mb-4 flex items-center gap-2">
-              <i class="fa-solid fa-volume-xmark"></i> Áudio indisponível
-            </div>
-          `}
-          
           <div class="border-t border-gray-100 pt-4 flex gap-3">
             <a href="${pdfLink}" target="_blank" class="flex-1 flex items-center justify-center gap-2 bg-[#C8F5A7] hover:bg-blue-700 text-black text-sm font-medium py-2.5 px-4 rounded-lg transition">
               <i class="fa-regular fa-file-pdf"></i> Visualizar Partitura
@@ -176,5 +167,6 @@
   </script>
 </body>
 </html>
+
 
 
