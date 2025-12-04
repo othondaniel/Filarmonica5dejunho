@@ -68,36 +68,22 @@
   <script>
     let acervoCompleto = [];
 
-    // Substitua a função loadMusicas() existente (originalmente no source: 8)
+   // Função para chamar os dados do musicas.json (SOLUÇÃO GITHUB)
     function loadMusicas() {
-      // Usamos fetch() para carregar o arquivo JSON diretamente do GitHub Pages
       fetch('musicas.json') 
         .then(response => {
-          // Verifica se a resposta HTTP foi OK (status 200)
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Se o arquivo não for encontrado (404), lança um erro
+            throw new Error(`HTTP error! status: ${response.status} - Arquivo não encontrado ou caminho incorreto.`);
           }
-          return response.json(); // Converte a resposta para objeto JavaScript
+          return response.json();
         })
         .then(musicas => {
-          // A função displayMusicas permanece a mesma
           displayMusicas(musicas);
         })
         .catch(error => {
-          // Chama o handler de erro, adaptado para esta falha de rede/arquivo
-          handleError(new Error("Falha ao carregar o arquivo musicas.json. Verifique o caminho e o conteúdo do arquivo. Detalhe: " + error.message));
+          handleError(new Error("Falha ao carregar o arquivo musicas.json. Detalhe: " + error.message));
         });
-    }
-    // OBS: Você pode remover a função handleError se quiser usar apenas a função de erro do fetch,
-    // mas vou mantê-la para aproveitar sua estrutura de mensagem de erro.
-    
-    // IMPORTANTE:
-    // Você precisa alterar a função handleError para ser mais genérica, pois ela ainda cita o Apps Script:
-    function handleError(error) {
-      document.getElementById('loading').innerHTML = 
-        '<i class="fa-solid fa-exclamation-triangle text-4xl text-red-600 mb-3"></i>' +
-        '<p class="text-lg font-medium text-red-700">Erro ao carregar os dados. Verifique a URL e o arquivo musicas.json.</p>' +
-        '<p class="text-sm text-red-500">Detalhe: ' + error.message + '</p>';
     }
 
     // Função executada quando os dados chegam com sucesso
@@ -108,15 +94,15 @@
       filterMusicas(); // Chama o filtro para exibir tudo inicialmente
     }
 
-    // Função de tratamento de erro
+    // Função UNIFICADA de tratamento de erro para o GitHub Pages
     function handleError(error) {
       document.getElementById('loading').innerHTML = 
         '<i class="fa-solid fa-exclamation-triangle text-4xl text-red-600 mb-3"></i>' +
-        '<p class="text-lg font-medium text-red-700">Erro ao carregar os dados. Verifique a planilha e as permissões do Apps Script.</p>' +
+        '<p class="text-lg font-medium text-red-700">Erro ao carregar os dados. Verifique se o arquivo **musicas.json** está no repositório.</p>' +
         '<p class="text-sm text-red-500">Detalhe: ' + error.message + '</p>';
     }
 
-    // Função para filtrar e renderizar o acervo
+    // Função para filtrar e renderizar o acervo (Resto do código permanece igual)
     function filterMusicas() {
       const term = document.getElementById('search-input').value.toLowerCase();
       const listContainer = document.getElementById('musica-list');
@@ -126,10 +112,8 @@
       const filtered = acervoCompleto.filter(musica => {
         const title = (musica.Título || '').toLowerCase();
         const composer = (musica.Compositor || '').toLowerCase();
-        // Arranjo (Arranjo) removido daqui
         const category = (musica.Categoria || '').toLowerCase();
         
-        // Busca apenas por Título, Compositor e Categoria
         return title.includes(term) || composer.includes(term) || category.includes(term);
       });
 
@@ -143,14 +127,13 @@
       }
     }
 
-    // Função para criar o card HTML de cada música
+    // Função para criar o card HTML de cada música (Resto do código permanece igual)
     function createMusicaCard(musica) {
       const card = document.createElement('div');
       card.className = 'bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col hover:shadow-lg transition-shadow';
 
       const pdfLink = musica.Link_PDF || '#';
       const audioLink = musica.Link_Audio;
-      // const arranjador = musica.Arranjo || 'Não Informado'; // Arranjador removido
       
       // Conteúdo do Card
       card.innerHTML = `
@@ -164,11 +147,8 @@
             <i class="fa-solid fa-user-pen text-gray-400 mr-2"></i>Compositor: ${musica.Compositor || 'Desconhecido'}
           </p>
           
-          <!-- Campo Arranjador removido daqui -->
-
           ${audioLink ? `
             <p class="text-gray-600 font-medium mb-2">Prévia de Áudio:</p>
-            <!-- ADICIONADO preload="metadata" para melhor desempenho em dispositivos móveis -->
             <audio controls preload="metadata" src="${audioLink}" class="mb-4"></audio>
           ` : `
             <div class="text-sm text-gray-400 p-2 bg-gray-50 rounded mb-4 flex items-center gap-2">
@@ -181,7 +161,6 @@
               <i class="fa-regular fa-file-pdf"></i> Visualizar Partitura
             </a>
             ${audioLink ? `
-                <!-- Adicionado target="_blank" para abrir em nova guia -->
                 <a href="${audioLink}" download target="_blank" class="h-10 w-10 flex items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition" title="Baixar Áudio">
                     <i class="fa-solid fa-download"></i>
                 </a>
@@ -197,4 +176,5 @@
   </script>
 </body>
 </html>
+
 
