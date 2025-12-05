@@ -9,7 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome para ícones -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   
   <style>
@@ -78,27 +78,41 @@
     </div>
   </main>
 
-  <script>
+<script>
     let acervoCompleto = [];
 
-   // Função para chamar os dados do musicas.json (SOLUÇÃO GITHUB)
-    function loadMusicas() {
-      fetch('musicas.json') 
-        .then(response => {
-          if (!response.ok) {
-            // Se o arquivo não for encontrado (404), lança um erro
-            throw new Error(`HTTP error! status: ${response.status} - Arquivo não encontrado ou caminho incorreto.`);
-          }
-          return response.json();
-        })
-        .then(musicas => {
-          displayMusicas(musicas);
-        })
-        .catch(error => {
-          handleError(new Error("Falha ao carregar o arquivo musicas.json. Detalhe: " + error.message));
-        });
-    }
+    // 1. Defina suas Chaves do Supabase AQUI:
+    // ** SUBSTITUA PELOS SEUS VALORES REAIS **
+    const SUPABASE_URL = 'https://ctfajkbwdcreeczazlsd.supabase.co'; // Ex: https://abcd123.supabase.co
+    const SUPABASE_ANON_KEY = 'sb_publishable_26MPas0IkQK3WJc50ljyZg_9GjlrEk7'; // Ex: sb_public...
 
+    // Inicializa o cliente Supabase
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+    // 2. NOVA FUNÇÃO: Carrega dados do Supabase
+    async function loadMusicas() {
+      // Usa try/catch para lidar com erros de conexão/API
+      try {
+        // Seleciona todos os dados ('*') da tabela 'musicas'
+        // Adiciona .order('Título', { ascending: true }) para ordenar por título
+        let { data: musicas, error } = await supabase
+          .from('musicas')
+          .select('*')
+          .order('Título', { ascending: true }); 
+
+        if (error) {
+          throw new Error('Erro ao buscar dados do Supabase: ' + error.message);
+        }
+
+        // Se deu tudo certo, exibe o acervo (a função displayMusicas permanece a mesma)
+        displayMusicas(musicas);
+
+      } catch (error) {
+        // Chama o handler de erro, adaptado para esta falha de API
+        handleError(error);
+      }
+    }
     // Função executada quando os dados chegam com sucesso
     function displayMusicas(musicas) {
       acervoCompleto = musicas;
@@ -180,6 +194,7 @@
   </script>
 </body>
 </html>
+
 
 
 
