@@ -79,18 +79,7 @@
 
     // Inicializa o cliente Supabase
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    // NOVO: Função auxiliar para formatar o link do Google Drive para o modo preview
-    // Isso é crucial para forçar a abertura em nova guia no celular.
-    const formatLinkForPreview = (originalLink) => {
-        if (originalLink && originalLink.includes('/view?usp=sharing')) {
-            // Substitui o final do link para forçar o modo "preview"
-            return originalLink.replace('/view?usp=sharing', '/preview');
-        }
-        return originalLink;
-    };
-
-
+  
     // 2. NOVA FUNÇÃO: Carrega dados do Supabase
     async function loadMusicas() {
       try {
@@ -200,3 +189,4 @@
   </script>
 </body>
 </html>
+
