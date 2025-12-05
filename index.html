@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Filarmônica 5 de Junho</title>
 
+  <!-- Tailwind CSS para design responsivo e moderno -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome para ícones -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -18,7 +20,8 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-    <header class="bg-[#C8F5A7] text-black shadow-lg sticky top-0 z-10">
+    <!-- Header -->
+  <header class="bg-[#C8F5A7] text-black shadow-lg sticky top-0 z-10">
       <div class="container mx-auto px-4 py-4 flex items-center justify-between"> 
         <div class="flex items-center gap-3">
           <i class="fa-solid fa-music text-black text-2xl"></i>
@@ -32,13 +35,14 @@
           <a href="index.html" class="text-sm font-bold text-blue-800">
             <i class="fa-solid fa-folder-open mr-1"></i> Acervo
           </a>
-          <a href="admin.html" class="text-sm font-medium hover:text-blue-700 transition">
-            <i class="fa-solid fa-user-lock mr-1"></i> Admin
+          <a href="sobre.html" class="text-sm font-medium hover:text-blue-700 transition">
+            <i class="fa-solid fa-circle-info mr-1"></i> Sobre
           </a>
         </nav>
       </div>
     </header>
 
+  <!-- Main Content -->
   <main class="container mx-auto px-4 py-8">
     <div id="loading" class="text-center p-8 bg-white rounded-lg shadow-md">
       <i class="fa-solid fa-spinner fa-spin text-4xl text-blue-600 mb-3"></i>
@@ -46,6 +50,7 @@
     </div>
 
     <div id="app-container" class="hidden">
+      <!-- Search Bar -->
       <div class="relative mb-6">
         <input 
           type="text" 
@@ -59,9 +64,12 @@
         </div>
       </div>
 
+      <!-- Music List -->
       <div id="musica-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        </div>
+        <!-- Cards will be injected here by JavaScript -->
+      </div>
 
+      <!-- No Results Message -->
       <div id="no-results" class="hidden text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
           <i class="fa-regular fa-folder-open text-4xl text-gray-300 mb-3"></i>
           <h3 class="text-lg font-medium text-gray-900">Nenhuma música encontrada</h3>
@@ -74,15 +82,20 @@
     let acervoCompleto = [];
 
     // 1. Defina suas Chaves do Supabase AQUI:
-    const SUPABASE_URL = 'https://ctfajkbwdcreeczazlsd.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0ZmFqa2J3ZGNyZWVjemF6bHNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5NDYzMjgsImV4cCI6MjA4MDUyMjMyOH0.I25-r0zcIgFEdJoCyVv6X5XuWdJQDS2S-hgM13Rd6DM';
+    // ** SUBSTITUA PELOS SEUS VALORES REAIS **
+    const SUPABASE_URL = 'https://ctfajkbwdcreeczazlsd.supabase.co'; // Ex: https://abcd123.supabase.co
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0ZmFqa2J3ZGNyZWVjemF6bHNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5NDYzMjgsImV4cCI6MjA4MDUyMjMyOH0.I25-r0zcIgFEdJoCyVv6X5XuWdJQDS2S-hgM13Rd6DM'; // Ex: sb_public...
 
     // Inicializa o cliente Supabase
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  
+
+
     // 2. NOVA FUNÇÃO: Carrega dados do Supabase
     async function loadMusicas() {
+      // Usa try/catch para lidar com erros de conexão/API
       try {
+        // Seleciona todos os dados ('*') da tabela 'musicas'
+        // Adiciona .order('Título', { ascending: true }) para ordenar por título
         let { data: musicas, error } = await supabase
           .from('musicas')
           .select('*')
@@ -92,13 +105,14 @@
           throw new Error('Erro ao buscar dados do Supabase: ' + error.message);
         }
 
+        // Se deu tudo certo, exibe o acervo (a função displayMusicas permanece a mesma)
         displayMusicas(musicas);
 
       } catch (error) {
+        // Chama o handler de erro, adaptado para esta falha de API
         handleError(error);
       }
     }
-    
     // Função executada quando os dados chegam com sucesso
     function displayMusicas(musicas) {
       acervoCompleto = musicas;
@@ -111,11 +125,11 @@
     function handleError(error) {
       document.getElementById('loading').innerHTML = 
         '<i class="fa-solid fa-exclamation-triangle text-4xl text-red-600 mb-3"></i>' +
-        '<p class="text-lg font-medium text-red-700">Erro ao carregar os dados. Verifique a chave de API e a política RLS (READ).</p>' +
+        '<p class="text-lg font-medium text-red-700">Erro ao carregar os dados. Verifique se o arquivo **musicas.json** está no repositório.</p>' +
         '<p class="text-sm text-red-500">Detalhe: ' + error.message + '</p>';
     }
 
-    // Função para filtrar e renderizar o acervo
+    // Função para filtrar e renderizar o acervo (Resto do código permanece igual)
     function filterMusicas() {
       const term = document.getElementById('search-input').value.toLowerCase();
       const listContainer = document.getElementById('musica-list');
@@ -140,14 +154,13 @@
       }
     }
 
-    // Função para criar o card HTML de cada música (COM EDIÇÕES DE LINK)
+    // Função para criar o card HTML de cada música (Resto do código permanece igual)
     function createMusicaCard(musica) {
       const card = document.createElement('div');
       card.className = 'bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col hover:shadow-lg transition-shadow';
 
-      // ** APLICAÇÃO DA CORREÇÃO DE LINK **
-      const pdfLink = musica.Link_PDF ? formatLinkForPreview(musica.Link_PDF) : '#';
-      const audioLink = musica.Link_Audio ? formatLinkForPreview(musica.Link_Audio) : null;
+      const pdfLink = musica.Link_PDF || '#';
+      const audioLink = musica.Link_Audio;
       
       // Conteúdo do Card
       card.innerHTML = `
@@ -162,19 +175,11 @@
           </p>
           
           <div class="border-t border-gray-100 pt-4 flex gap-3">
-            <a href="${pdfLink}" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               class="flex-1 flex items-center justify-center gap-2 bg-[#C8F5A7] hover:bg-blue-700 text-black text-sm font-medium py-2.5 px-4 rounded-lg transition">
+            <a href="${pdfLink}" target="_blank" class="flex-1 flex items-center justify-center gap-2 bg-[#C8F5A7] hover:bg-blue-700 text-black text-sm font-medium py-2.5 px-4 rounded-lg transition">
               <i class="fa-regular fa-file-pdf"></i> Visualizar Partitura
             </a>
-            
             ${audioLink ? `
-                <a href="${audioLink}" 
-                   target="_blank" 
-                   rel="noopener noreferrer" 
-                   class="h-10 w-10 flex items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition" 
-                   title="Ouvir Áudio">
+                <a href="${audioLink}" download target="_blank" class="h-10 w-10 flex items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition" title="Ouvir Áudio">
                     <i class="fa-solid fa-headphones-simple"></i>
                 </a>
             ` : ''}
@@ -189,4 +194,3 @@
   </script>
 </body>
 </html>
-
