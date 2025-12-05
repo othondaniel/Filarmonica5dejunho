@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ADMIN - Filarmônica 5 de Junho</title> 
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body { font-family: ui-sans-serif, system-ui, sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <header class="bg-red-700 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-4">
+      <h1 class="text-xl font-bold">ADMINISTRAÇÃO do Acervo</h1>
+      <p class="text-sm text-red-100">Adicionar/Editar Músicas</p>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg max-w-lg mx-auto">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Nova Música</h2>
+      
+      <form id="music-form" onsubmit="handleFormSubmit(event)">
+        
+        <div class="mb-4">
+          <label for="titulo" class="block text-sm font-medium text-gray-700 mb-1">Título da Música</label>
+          <input type="text" id="titulo" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500">
+        </div>
+
+        <div class="mb-4">
+          <label for="compositor" class="block text-sm font-medium text-gray-700 mb-1">Compositor</label>
+          <input type="text" id="compositor" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500">
+        </div>
+
+        <div class="mb-4">
+          <label for="categoria" class="block text-sm font-medium text-gray-700 mb-1">Categoria (ex: Dobrado, Hino)</label>
+          <input type="text" id="categoria" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500">
+        </div>
+        
+        <div class="mb-4">
+          <label for="link_pdf" class="block text-sm font-medium text-gray-700 mb-1">Link do PDF (Google Drive)</label>
+          <input type="url" id="link_pdf" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500">
+        </div>
+
+        <div class="mb-6">
+          <label for="link_audio" class="block text-sm font-medium text-gray-700 mb-1">Link do Áudio (Google Drive)</label>
+          <input type="url" id="link_audio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500">
+        </div>
+
+        <button type="submit" id="submit-btn" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition">
+          <i class="fa-solid fa-plus-circle"></i> Adicionar Música
+        </button>
+        
+        <p id="status-message" class="mt-4 text-center hidden text-sm"></p>
+      </form>
+      
+      <div class="mt-6 text-center">
+        <a href="index.html" class="text-sm text-gray-500 hover:text-red-600 transition">
+          <i class="fa-solid fa-arrow-left mr-1"></i> Voltar ao Acervo Público
+        </a>
+      </div>
+      
+    </div>
+  </main>
+
+  <script>
+    // 1. Defina suas Chaves do Supabase AQUI (usando as mesmas do index.html para leitura/teste)
+    const SUPABASE_URL = 'SUA_URL_DO_PROJETO_AQUI'; 
+    const SUPABASE_ANON_KEY = 'SUA_CHAVE_PUBLICA_ANONIMA_AQUI'; // Chave que começa com "eyJ..."
+
+    // Inicializa o cliente Supabase
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const form = document.getElementById('music-form');
+    const statusMessage = document.getElementById('status-message');
+    const submitBtn = document.getElementById('submit-btn');
+
+    // Função que lida com o envio do formulário
+    async function handleFormSubmit(event) {
+      event.preventDefault(); // Impede o recarregamento da página
+
+      // 1. Coleta os dados do formulário
+      const novaMusica = {
+        Título: document.getElementById('titulo').value,
+        Compositor: document.getElementById('compositor').value,
+        Categoria: document.getElementById('categoria').value,
+        Link_PDF: document.getElementById('link_pdf').value,
+        Link_Audio: document.getElementById('link_audio').value || null // Pode ser nulo
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Adicionando...';
+      statusMessage.classList.add('hidden');
+
+      // 2. Insere os dados no Supabase
+      // O código abaixo SÓ VAI FUNCIONAR se você tiver uma política RLS de INSERT configurada.
+      const { data, error } = await supabase
+        .from('musicas')
+        .insert([novaMusica]);
+
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-plus-circle"></i> Adicionar Música';
+
+
+      if (error) {
+        // Erro: geralmente ocorre por falta de permissão de INSERT (RLS)
+        statusMessage.textContent = 'Erro ao adicionar música. Verifique as permissões de INSERT.';
+        statusMessage.classList.remove('hidden');
+        statusMessage.classList.add('text-red-600');
+        console.error('Erro de Supabase:', error);
+      } else {
+        // Sucesso
+        statusMessage.textContent = `Música "${novaMusica.Título}" adicionada com sucesso!`;
+        statusMessage.classList.remove('hidden');
+        statusMessage.classList.remove('text-red-600');
+        statusMessage.classList.add('text-green-600');
+        form.reset(); // Limpa o formulário após o sucesso
+      }
+    }
+  </script>
+</body>
+</html>
